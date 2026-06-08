@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>4路線 乗り換え路線図</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --text: #242424;
+      --muted: #676767;
+      --paper: #ffffff;
+      --panel: #f7f8fa;
+      --border: #d9dde3;
+      --shadow: 0 16px 44px rgba(28, 31, 37, 0.08);
+      --base: #ffe35b;
+      --base-ring: #2a2a2a;
+      --jr: #2f9b49;
+      --m: #e60012;
+      --f: #9c5e31;
+      --s: #b6c80f;
+      --e: #b6007a;
+      --y: #c9a063;
+      --n: #00ada9;
+      --t: #00a7db;
+      --z: #8f76d6;
+      --i: #006ab8;
+      --c: #00bb85;
+      --h: #b5b5ac;
+      --g: #f39700;
+      --a: #e85298;
+      --ko: #dd007f;
+      --od: #0072bc;
+      --seibu: #0068b7;
+      --tobu: #005bac;
+      --keisei: #005aaa;
+      --tx: #1f3c99;
+      --tokyu: #da0442;
+      --inokashira: #004ea2;
+      --tram: #c20057;
+      --yurikamome: #0099d8;
+      --mono: #113f8c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      letter-spacing: 0;
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 18px 44px;
+    }
+
+    .page-header {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 18px;
+      border-bottom: 3px solid #222;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 980px;
+      margin: 0;
+      color: #454545;
+      font-size: 1rem;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      color: #222;
+      font-size: 0.93rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .line-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--line);
+    }
+
+    .legend {
+      margin: 0 0 24px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .legend-title {
+      margin: 0 0 10px;
+      color: #333;
+      font-size: 0.98rem;
+      font-weight: 900;
+    }
+
+    .legend-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .legend-grid li {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #444;
+      font-size: 0.87rem;
+      white-space: nowrap;
+    }
+
+    .route-section {
+      --line: #777;
+      --line-soft: #f5f5f5;
+      margin: 0 0 28px;
+      border: 1px solid var(--border);
+      border-top: 10px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .route-section.shinjuku {
+      --line: var(--s);
+      --line-soft: #f5f8d7;
+    }
+
+    .route-section.marunouchi {
+      --line: var(--m);
+      --line-soft: #fff0f0;
+    }
+
+    .route-section.fukutoshin {
+      --line: var(--f);
+      --line-soft: #f8efe6;
+    }
+
+    .route-section.oedo {
+      --line: var(--e);
+      --line-soft: #fff0f8;
+    }
+
+    .route-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 18px 15px;
+      background: var(--line-soft);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .route-title {
+      margin: 0;
+      font-size: clamp(1.35rem, 2vw, 2rem);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .route-meta {
+      margin: 7px 0 0;
+      color: #444;
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .route-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .route-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e9edf2;
+      color: #333;
+      font-size: 0.84rem;
+      font-weight: 950;
+      line-height: 1.2;
+    }
+
+    .route-chip.express {
+      background: #d51f2a;
+      color: #fff;
+    }
+
+    .route-chip.commuter {
+      background: #f59e0b;
+      color: #111;
+    }
+
+    .route-chip.through {
+      background: var(--ko);
+      color: #fff;
+    }
+
+    .route-chip.local {
+      background: #ffffff;
+      border: 1px solid #cfd5dd;
+      color: #333;
+    }
+
+    .scroll-hint {
+      flex: 0 0 auto;
+      color: #555;
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
+
+    .subroute {
+      border-top: 1px solid #eceff3;
+    }
+
+    .subroute:first-of-type {
+      border-top: 0;
+    }
+
+    .subroute-title {
+      margin: 0;
+      padding: 12px 18px 0;
+      color: #333;
+      font-size: 1rem;
+      line-height: 1.3;
+    }
+
+    .rail-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0 0 6px;
+      background:
+        linear-gradient(90deg, #fff 0, rgba(255, 255, 255, 0)) left / 24px 100% no-repeat,
+        linear-gradient(270deg, #fff 0, rgba(255, 255, 255, 0)) right / 24px 100% no-repeat;
+      scrollbar-color: #9ca3af #eef1f5;
+      scrollbar-width: thin;
+    }
+
+    .rail {
+      --step: 96px;
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(var(--count), var(--step));
+      width: max-content;
+      min-width: calc((var(--count) * var(--step)) + 56px);
+      height: 318px;
+      margin: 0;
+      padding: 14px 28px 20px;
+      list-style: none;
+    }
+
+    .rail::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      left: calc(28px + (var(--step) / 2));
+      right: calc(28px + (var(--step) / 2));
+      top: 139px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--line);
+      box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .rail.direct-mixed::before {
+      background: linear-gradient(90deg, var(--ko) 0 var(--through-end, 24%), var(--line) var(--through-end, 24%) 100%);
+    }
+
+    .stop {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-rows: 112px 44px 128px;
+      justify-items: center;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .badges {
+      position: relative;
+      display: flex;
+      align-self: end;
+      align-items: flex-end;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      width: 88px;
+      min-height: 44px;
+      padding-bottom: 13px;
+    }
+
+    .badges:not(:empty)::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      height: 10px;
+      transform: translateX(-50%);
+      background: #cfd3d9;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 24px;
+      padding: 0 7px;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      background: #777;
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+      font-size: 0.66rem;
+      font-weight: 950;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .badge.jr { background: var(--jr); }
+    .badge.m { background: var(--m); }
+    .badge.f { background: var(--f); }
+    .badge.s { background: var(--s); color: #111; }
+    .badge.e { background: var(--e); }
+    .badge.y { background: var(--y); color: #111; }
+    .badge.n { background: var(--n); }
+    .badge.t { background: var(--t); }
+    .badge.z { background: var(--z); }
+    .badge.i { background: var(--i); }
+    .badge.c { background: var(--c); }
+    .badge.h { background: var(--h); color: #111; }
+    .badge.g { background: var(--g); color: #111; }
+    .badge.a { background: var(--a); }
+    .badge.ko { background: var(--ko); }
+    .badge.od { background: var(--od); }
+    .badge.seibu { background: var(--seibu); }
+    .badge.tobu { background: var(--tobu); }
+    .badge.keisei { background: var(--keisei); }
+    .badge.tx { background: var(--tx); }
+    .badge.tokyu { background: var(--tokyu); }
+    .badge.ino { background: var(--inokashira); }
+    .badge.tram { background: var(--tram); }
+    .badge.yuri { background: var(--yurikamome); }
+    .badge.mono { background: var(--mono); }
+
+    .badge.m,
+    .badge.f,
+    .badge.s,
+    .badge.e,
+    .badge.y,
+    .badge.n,
+    .badge.t,
+    .badge.z,
+    .badge.i,
+    .badge.c,
+    .badge.h,
+    .badge.g,
+    .badge.a,
+    .badge.tx {
+      font-size: 0;
+    }
+
+    .badge.m::after,
+    .badge.f::after,
+    .badge.s::after,
+    .badge.e::after,
+    .badge.y::after,
+    .badge.n::after,
+    .badge.t::after,
+    .badge.z::after,
+    .badge.i::after,
+    .badge.c::after,
+    .badge.h::after,
+    .badge.g::after,
+    .badge.a::after,
+    .badge.tx::after {
+      font-size: 0.62rem;
+      line-height: 1;
+    }
+
+    .badge.m::after { content: "丸ノ内"; }
+    .badge.f::after { content: "副都心"; }
+    .badge.s::after { content: "都営新宿"; }
+    .badge.e::after { content: "大江戸"; }
+    .badge.y::after { content: "有楽町"; }
+    .badge.n::after { content: "南北"; }
+    .badge.t::after { content: "東西"; }
+    .badge.z::after { content: "半蔵門"; }
+    .badge.i::after { content: "三田"; }
+    .badge.c::after { content: "千代田"; }
+    .badge.h::after { content: "日比谷"; }
+    .badge.g::after { content: "銀座"; }
+    .badge.a::after { content: "浅草"; }
+    .badge.tx::after { content: "つくば"; }
+
+    .service-symbol {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 24px;
+      padding: 0 7px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .service-symbol.express-symbol {
+      background: #d51f2a;
+    }
+
+    .service-symbol.commuter-symbol {
+      background: #f59e0b;
+      color: #111;
+    }
+
+    .node {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 6px solid #171717;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+    }
+
+    .stop.has-transfer .node {
+      width: 36px;
+      height: 36px;
+      border-width: 6px;
+    }
+
+    .stop.base .node {
+      width: 44px;
+      height: 44px;
+      border-color: var(--base-ring);
+      background: var(--base);
+      box-shadow: 0 0 0 6px rgba(255, 227, 91, 0.55), 0 2px 0 rgba(0, 0, 0, 0.18);
+    }
+
+    .stop.express-stop .node {
+      border-color: #d51f2a;
+    }
+
+    .stop.express-stop .node::before {
+      content: "急";
+      color: #d51f2a;
+      font-size: 0.9rem;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .stop.commuter-stop:not(.express-stop) .node {
+      border-color: #f59e0b;
+    }
+
+    .stop.commuter-stop:not(.express-stop) .node::before {
+      content: "通急";
+      color: #9a5b00;
+      font-size: 0.6rem;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .name {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      height: 126px;
+      color: #262626;
+      font-size: 1.3rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .name.long {
+      font-size: 1.08rem;
+    }
+
+    .name.xlong {
+      font-size: 0.94rem;
+    }
+
+    .note {
+      margin: 0;
+      padding: 0 18px 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .sources {
+      margin-top: 26px;
+      padding-top: 18px;
+      border-top: 3px solid #222;
+    }
+
+    .sources h2 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    .sources ul {
+      margin: 8px 0 0;
+      padding-left: 1.2em;
+    }
+
+    .sources li {
+      margin: 5px 0;
+      color: #444;
+      font-size: 0.94rem;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 18px 10px 34px;
+      }
+
+      .route-head {
+        display: block;
+        padding: 15px 14px 12px;
+      }
+
+      .scroll-hint {
+        margin-top: 8px;
+      }
+
+      .subroute-title {
+        padding-left: 14px;
+      }
+
+      .rail {
+        --step: 88px;
+        height: 306px;
+        padding-left: 22px;
+        padding-right: 22px;
+      }
+
+      .rail::before {
+        left: calc(22px + (var(--step) / 2));
+        right: calc(22px + (var(--step) / 2));
+      }
+
+      .name {
+        font-size: 1.18rem;
+      }
+
+      .name.long {
+        font-size: 1rem;
+      }
+
+      .name.xlong {
+        font-size: 0.88rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="page-header">
+      <h1>4路線 乗り換え路線図</h1>
+      <p class="lead">ブラウザで見る前提の横スクロール路線図です。駅番号と所要時間は省き、乗換路線は日本語の色付きバッジ、急行停車駅は駅ノード内の表示で確認できます。</p>
+      <nav class="nav" aria-label="路線ナビゲーション">
+        <a href="#shinjuku" style="--line: var(--s);"><span class="line-dot"></span>都営新宿線</a>
+        <a href="#marunouchi" style="--line: var(--m);"><span class="line-dot"></span>丸ノ内線</a>
+        <a href="#fukutoshin" style="--line: var(--f);"><span class="line-dot"></span>副都心線</a>
+        <a href="#oedo" style="--line: var(--e);"><span class="line-dot"></span>大江戸線</a>
+      </nav>
+    </header>
+
+    <section class="legend" aria-labelledby="legend-title">
+      <h2 class="legend-title" id="legend-title">乗換バッジ凡例</h2>
+      <ul class="legend-grid">
+        <li><span class="service-symbol express-symbol">急</span>急行停車</li>
+        <li><span class="service-symbol commuter-symbol">通急</span>通勤急行のみ停車</li>
+        <li><span class="badge jr">JR</span>JR線</li>
+        <li><span class="badge m">M</span>丸ノ内線</li>
+        <li><span class="badge f">F</span>副都心線</li>
+        <li><span class="badge s">S</span>都営新宿線</li>
+        <li><span class="badge e">E</span>大江戸線</li>
+        <li><span class="badge y">Y</span>有楽町線</li>
+        <li><span class="badge n">N</span>南北線</li>
+        <li><span class="badge t">T</span>東西線</li>
+        <li><span class="badge z">Z</span>半蔵門線</li>
+        <li><span class="badge i">I</span>三田線</li>
+        <li><span class="badge c">C</span>千代田線</li>
+        <li><span class="badge h">H</span>日比谷線</li>
+        <li><span class="badge g">G</span>銀座線</li>
+        <li><span class="badge a">A</span>浅草線</li>
+        <li><span class="badge ko">京王</span>京王線</li>
+        <li><span class="badge od">小田急</span>小田急線</li>
+        <li><span class="badge seibu">西武</span>西武線</li>
+        <li><span class="badge tobu">東武</span>東武東上線</li>
+        <li><span class="badge keisei">京成</span>京成線</li>
+        <li><span class="badge tx">TX</span>つくばエクスプレス</li>
+        <li><span class="badge tokyu">東急</span>東急線</li>
+        <li><span class="badge ino">井の頭</span>京王井の頭線</li>
+        <li><span class="badge tram">都電</span>東京さくらトラム</li>
+        <li><span class="badge yuri">ゆり</span>ゆりかもめ</li>
+        <li><span class="badge mono">モノ</span>東京モノレール</li>
+      </ul>
+    </section>
+
+    <section class="route-section shinjuku" id="shinjuku" aria-labelledby="shinjuku-title">
+      <header class="route-head">
+        <div>
+          <h2 class="route-title" id="shinjuku-title">都営新宿線</h2>
+          <p class="route-meta">基準駅：曙橋 / 急行停車駅を赤い「急」で表示 / 新宿から京王線直通あり</p>
+          <div class="route-tags"><span class="route-chip express">急行あり</span><span class="route-chip through">京王線直通</span></div>
+        </div>
+        <div class="scroll-hint">横にスクロール</div>
+      </header>
+      <div class="rail-scroll" aria-label="都営新宿線の路線図">
+        <ol class="rail direct-mixed" style="--count: 25; --through-end: 24%;">
+          <li class="stop"><div class="badges"><span class="badge ko" title="京王線方面">京王線</span></div><span class="node"></span><div class="name long">京王線方面</div></li>
+          <li class="stop"><div class="badges"><span class="badge ko" title="京王線">京王</span></div><span class="node"></span><div class="name">笹塚</div></li>
+          <li class="stop"><div class="badges"><span class="badge ko" title="京王新線">京王新線</span></div><span class="node"></span><div class="name">幡ヶ谷</div></li>
+          <li class="stop"><div class="badges"><span class="badge ko" title="京王新線">京王新線</span></div><span class="node"></span><div class="name">初台</div></li>
+          <li class="stop has-transfer express-stop"><div class="badges"><span class="badge e" title="都営大江戸線">E</span><span class="badge jr" title="JR線">JR</span><span class="badge ko" title="京王線">京王</span><span class="badge od" title="小田急線">小田急</span></div><span class="node"></span><div class="name">新宿</div></li>
+          <li class="stop has-transfer"><div class="badges"><span class="badge m" title="東京メトロ丸ノ内線">M</span><span class="badge f" title="東京メトロ副都心線">F</span></div><span class="node"></span><div class="name long">新宿三丁目</div></li>
+          <li class="stop base" id="akebonobashi-base"><div class="badges"></div><span class="node"></span><div class="name">曙橋</div></li>
+          <li class="stop has-transfer express-stop"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span><span class="badge n" title="東京メトロ南北線">N</span><span class="badge jr" title="JR中央・総武線各駅停車">JR</span></div><span class="node"></span><div class="name">市ヶ谷</div></li>
+          <li class="stop has-transfer"><div class="badges"><span class="badge t" title="東京メトロ東西線">T</span><span class="badge z" title="東京メトロ半蔵門線">Z</span></div><span class="node"></span><div class="name">九段下</div></li>
+          <li class="stop has-transfer express-stop"><div class="badges"><span class="badge z" title="東京メトロ半蔵門線">Z</span><span class="badge i" title="都営三田線">I</span></div><span class="node"></span><div class="name">神保町</div></li>
+          <li class="stop has-transfer"><div class="badges"><span class="badge m" title="東京メトロ丸ノ内線（淡路町）">M</span><span class="badge c" title="東京メトロ千代田線（新御茶ノ水）">C</span></div><span class="node"></span><div class="name">小川町</div></li>
+          <li class="stop has-transfer"><div class="badges"><span class="badge h" title="東京メトロ日比谷線（秋葉原）">H</span><span class="badge jr" title="JR線（秋葉原）">JR</span><span class="badge tx" title="つくばエクスプレス線（秋葉原）">TX</span></div><span class="node"></span><div class="name">岩本町</div></li>
+          <li class="stop has-transfer express-stop"><div class="badges"><span class="badge jr" title="JR総武線快速（馬喰町）">JR</span><span class="badge a" title="都営浅草線（東日本橋）">A</span></div><span class="node"></span><div class="name xlong">馬喰横山</div></li>
+          <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">浜町</div></li>
+          <li class="stop has-transfer express-stop"><div class="badges"><span class="badge e" title="都営大江戸線">E</span></div><span class="node"></span><div class="name">森下</div></li>
+          <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">菊川</div></li>
+          <li class="stop has-transfer"><div class="badges"><span class="badge z" title="東京メトロ半蔵門線">Z</span></div><span class="node"></span><div class="name">住吉</div></li>
+          <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">西大島</div></li>
+          <li class="stop express-stop"><div class="badges"></div><span class="node"></span><div class="name">大島</div></li>
+          <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">東大島</div></li>
+          <li class="stop express-stop"><div class="badges"></div><span class="node"></span><div class="name">船堀</div></li>
+          <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">一之江</div></li>
+          <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">瑞江</div></li>
+          <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">篠崎</div></li>
+          <li class="stop has-transfer express-stop"><div class="badges"><span class="badge jr" title="JR総武線各駅停車">JR</span><span class="badge keisei" title="京成線（京成八幡）">京成</span></div><span class="node"></span><div class="name">本八幡</div></li>
+        </ol>
+      </div>
+      <p class="note">急行停車駅：新宿・市ヶ谷・神保町・馬喰横山・森下・大島・船堀・本八幡。新宿三丁目・九段下・住吉など、赤い「急」がない駅には停まりません。新宿から京王新線・京王線へ直通する列車があります。</p>
+    </section>
+
+    <section class="route-section marunouchi" id="marunouchi" aria-labelledby="marunouchi-title">
+      <header class="route-head">
+        <div>
+          <h2 class="route-title" id="marunouchi-title">東京メトロ丸ノ内線</h2>
+          <p class="route-meta">基準駅：四谷三丁目 / 急行なし / 方南町支線は中野坂上で分岐</p>
+          <div class="route-tags"><span class="route-chip local">急行なし</span><span class="route-chip local">方南町支線</span></div>
+        </div>
+        <div class="scroll-hint">横にスクロール</div>
+      </header>
+
+      <section class="subroute" aria-labelledby="marunouchi-main">
+        <h3 class="subroute-title" id="marunouchi-main">本線：荻窪方面 → 池袋方面</h3>
+        <div class="rail-scroll" aria-label="丸ノ内線本線の路線図">
+          <ol class="rail" style="--count: 25;">
+            <li class="stop has-transfer"><div class="badges"><span class="badge jr" title="JR線">JR</span></div><span class="node"></span><div class="name">荻窪</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">南阿佐ケ谷</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">新高円寺</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">東高円寺</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">新中野</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge e" title="都営大江戸線">E</span></div><span class="node"></span><div class="name long">中野坂上</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">西新宿</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge e" title="都営大江戸線（新宿・新宿西口）">E</span><span class="badge jr" title="JR線">JR</span><span class="badge ko" title="京王線">京王</span><span class="badge od" title="小田急線">小田急</span></div><span class="node"></span><div class="name">新宿</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge f" title="東京メトロ副都心線">F</span><span class="badge s" title="都営新宿線">S</span></div><span class="node"></span><div class="name long">新宿三丁目</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">新宿御苑前</div></li>
+            <li class="stop base" id="yotsuya-sanchome-base"><div class="badges"></div><span class="node"></span><div class="name xlong">四谷三丁目</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge n" title="東京メトロ南北線">N</span><span class="badge jr" title="JR線">JR</span></div><span class="node"></span><div class="name">四ツ谷</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge g" title="東京メトロ銀座線">G</span><span class="badge y" title="東京メトロ有楽町線（永田町）">Y</span><span class="badge z" title="東京メトロ半蔵門線（永田町）">Z</span><span class="badge n" title="東京メトロ南北線（永田町）">N</span></div><span class="node"></span><div class="name xlong">赤坂見附</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge c" title="東京メトロ千代田線">C</span><span class="badge g" title="東京メトロ銀座線（溜池山王）">G</span><span class="badge n" title="東京メトロ南北線（溜池山王）">N</span></div><span class="node"></span><div class="name xlong">国会議事堂前</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge h" title="東京メトロ日比谷線">H</span><span class="badge c" title="東京メトロ千代田線">C</span></div><span class="node"></span><div class="name">霞ケ関</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge g" title="東京メトロ銀座線">G</span><span class="badge h" title="東京メトロ日比谷線">H</span><span class="badge y" title="東京メトロ有楽町線（銀座一丁目）">Y</span></div><span class="node"></span><div class="name">銀座</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge jr" title="JR線">JR</span></div><span class="node"></span><div class="name">東京</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge t" title="東京メトロ東西線">T</span><span class="badge c" title="東京メトロ千代田線">C</span><span class="badge z" title="東京メトロ半蔵門線">Z</span><span class="badge i" title="都営三田線">I</span></div><span class="node"></span><div class="name">大手町</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge c" title="東京メトロ千代田線（新御茶ノ水）">C</span><span class="badge s" title="都営新宿線（小川町）">S</span></div><span class="node"></span><div class="name">淡路町</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge jr" title="JR線">JR</span></div><span class="node"></span><div class="name">御茶ノ水</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge e" title="都営大江戸線">E</span></div><span class="node"></span><div class="name xlong">本郷三丁目</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge n" title="東京メトロ南北線">N</span><span class="badge i" title="都営三田線（春日）">I</span><span class="badge e" title="都営大江戸線（春日）">E</span></div><span class="node"></span><div class="name">後楽園</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">茗荷谷</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">新大塚</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span><span class="badge f" title="東京メトロ副都心線">F</span><span class="badge jr" title="JR線">JR</span><span class="badge tobu" title="東武東上線">東武</span><span class="badge seibu" title="西武池袋線">西武</span></div><span class="node"></span><div class="name">池袋</div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="subroute" aria-labelledby="marunouchi-branch">
+        <h3 class="subroute-title" id="marunouchi-branch">方南町支線：中野坂上から分岐</h3>
+        <div class="rail-scroll" aria-label="丸ノ内線方南町支線の路線図">
+          <ol class="rail" style="--count: 3;">
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name long">中野新橋</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">中野富士見町</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">方南町</div></li>
+          </ol>
+        </div>
+        <p class="note">中野坂上は本線側に表示しています。</p>
+      </section>
+    </section>
+
+    <section class="route-section fukutoshin" id="fukutoshin" aria-labelledby="fukutoshin-title">
+      <header class="route-head">
+        <div>
+          <h2 class="route-title" id="fukutoshin-title">東京メトロ副都心線</h2>
+          <p class="route-meta">基準駅：新宿三丁目 / 急行停車駅を赤い「急」、通勤急行のみ停車をオレンジの「通急」で表示</p>
+          <div class="route-tags"><span class="route-chip express">急行あり</span><span class="route-chip commuter">通勤急行あり</span></div>
+        </div>
+        <div class="scroll-hint">横にスクロール</div>
+      </header>
+      <div class="rail-scroll" aria-label="副都心線の路線図">
+        <ol class="rail" style="--count: 16;">
+          <li class="stop has-transfer express-stop commuter-stop"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span><span class="badge tobu" title="東武東上線">東武</span></div><span class="node"></span><div class="name">和光市</div></li>
+          <li class="stop has-transfer commuter-stop"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span></div><span class="node"></span><div class="name xlong">地下鉄成増</div></li>
+          <li class="stop has-transfer commuter-stop"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span></div><span class="node"></span><div class="name xlong">地下鉄赤塚</div></li>
+          <li class="stop has-transfer commuter-stop"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span></div><span class="node"></span><div class="name">平和台</div></li>
+          <li class="stop has-transfer commuter-stop"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span></div><span class="node"></span><div class="name">氷川台</div></li>
+          <li class="stop has-transfer express-stop commuter-stop"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span><span class="badge seibu" title="西武有楽町線">西武</span></div><span class="node"></span><div class="name xlong">小竹向原</div></li>
+          <li class="stop has-transfer"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span></div><span class="node"></span><div class="name">千川</div></li>
+          <li class="stop has-transfer"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span></div><span class="node"></span><div class="name">要町</div></li>
+          <li class="stop has-transfer express-stop commuter-stop"><div class="badges"><span class="badge m" title="東京メトロ丸ノ内線">M</span><span class="badge y" title="東京メトロ有楽町線">Y</span><span class="badge jr" title="JR線">JR</span><span class="badge tobu" title="東武東上線">東武</span><span class="badge seibu" title="西武池袋線">西武</span></div><span class="node"></span><div class="name">池袋</div></li>
+          <li class="stop has-transfer"><div class="badges"><span class="badge tram" title="東京さくらトラム（都電荒川線）（鬼子母神前）">都電</span></div><span class="node"></span><div class="name xlong">雑司が谷</div></li>
+          <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">西早稲田</div></li>
+          <li class="stop has-transfer"><div class="badges"><span class="badge e" title="都営大江戸線">E</span></div><span class="node"></span><div class="name">東新宿</div></li>
+          <li class="stop has-transfer base express-stop commuter-stop" id="shinjuku-sanchome-base"><div class="badges"><span class="badge m" title="東京メトロ丸ノ内線">M</span><span class="badge s" title="都営新宿線">S</span></div><span class="node"></span><div class="name long">新宿三丁目</div></li>
+          <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">北参道</div></li>
+          <li class="stop has-transfer express-stop commuter-stop"><div class="badges"><span class="badge c" title="東京メトロ千代田線">C</span><span class="badge jr" title="JR線（原宿）">JR</span></div><span class="node"></span><div class="name xlong">明治神宮前</div></li>
+          <li class="stop has-transfer express-stop commuter-stop"><div class="badges"><span class="badge g" title="東京メトロ銀座線">G</span><span class="badge z" title="東京メトロ半蔵門線">Z</span><span class="badge jr" title="JR線">JR</span><span class="badge tokyu" title="東急線">東急</span><span class="badge ino" title="京王井の頭線">井の頭</span></div><span class="node"></span><div class="name">渋谷</div></li>
+        </ol>
+      </div>
+      <p class="note">副都心線の急行停車駅：和光市・小竹向原・池袋・新宿三丁目・明治神宮前〈原宿〉・渋谷。通勤急行はこの6駅に加えて、地下鉄成増・地下鉄赤塚・平和台・氷川台にも停まります。</p>
+    </section>
+
+    <section class="route-section oedo" id="oedo" aria-labelledby="oedo-title">
+      <header class="route-head">
+        <div>
+          <h2 class="route-title" id="oedo-title">都営大江戸線</h2>
+          <p class="route-meta">基準駅：新宿 / 急行なし / 光が丘方面と環状部</p>
+          <div class="route-tags"><span class="route-chip local">急行なし</span></div>
+        </div>
+        <div class="scroll-hint">横にスクロール</div>
+      </header>
+
+      <section class="subroute" aria-labelledby="oedo-hikarigaoka">
+        <h3 class="subroute-title" id="oedo-hikarigaoka">光が丘方面</h3>
+        <div class="rail-scroll" aria-label="大江戸線 光が丘方面の路線図">
+          <ol class="rail" style="--count: 12;">
+            <li class="stop has-transfer base"><div class="badges"><span class="badge s" title="都営新宿線">S</span><span class="badge jr" title="JR線">JR</span><span class="badge ko" title="京王線">京王</span><span class="badge od" title="小田急線">小田急</span></div><span class="node"></span><div class="name">新宿</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">都庁前</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">西新宿五丁目</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge m" title="東京メトロ丸ノ内線">M</span></div><span class="node"></span><div class="name long">中野坂上</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge jr" title="JR中央・総武線各駅停車">JR</span></div><span class="node"></span><div class="name">東中野</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge seibu" title="西武新宿線">西武</span></div><span class="node"></span><div class="name">中井</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">落合南長崎</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">新江古田</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge seibu" title="西武池袋線 / 西武有楽町線">西武</span></div><span class="node"></span><div class="name">練馬</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">豊島園</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">練馬春日町</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">光が丘</div></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="subroute" aria-labelledby="oedo-loop">
+        <h3 class="subroute-title" id="oedo-loop">環状部</h3>
+        <div class="rail-scroll" aria-label="大江戸線 環状部の路線図">
+          <ol class="rail" style="--count: 27;">
+            <li class="stop has-transfer base"><div class="badges"><span class="badge s" title="都営新宿線">S</span><span class="badge jr" title="JR線">JR</span><span class="badge ko" title="京王線">京王</span><span class="badge od" title="小田急線">小田急</span></div><span class="node"></span><div class="name">新宿</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge jr" title="JR山手線 / JR中央・総武線各駅停車">JR</span></div><span class="node"></span><div class="name">代々木</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">国立競技場</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge g" title="東京メトロ銀座線">G</span><span class="badge z" title="東京メトロ半蔵門線">Z</span></div><span class="node"></span><div class="name xlong">青山一丁目</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge h" title="東京メトロ日比谷線">H</span></div><span class="node"></span><div class="name">六本木</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge n" title="東京メトロ南北線">N</span></div><span class="node"></span><div class="name">麻布十番</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">赤羽橋</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge a" title="都営浅草線">A</span><span class="badge jr" title="JR線（浜松町）">JR</span><span class="badge mono" title="東京モノレール（浜松町）">モノ</span></div><span class="node"></span><div class="name">大門</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge yuri" title="ゆりかもめ">ゆり</span></div><span class="node"></span><div class="name">汐留</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">築地市場</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">勝どき</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span></div><span class="node"></span><div class="name">月島</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge t" title="東京メトロ東西線">T</span></div><span class="node"></span><div class="name xlong">門前仲町</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge z" title="東京メトロ半蔵門線">Z</span></div><span class="node"></span><div class="name xlong">清澄白河</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge s" title="都営新宿線">S</span></div><span class="node"></span><div class="name">森下</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge jr" title="JR総武線各駅停車">JR</span></div><span class="node"></span><div class="name">両国</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge a" title="都営浅草線">A</span></div><span class="node"></span><div class="name">蔵前</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge tx" title="つくばエクスプレス線">TX</span></div><span class="node"></span><div class="name xlong">新御徒町</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge g" title="東京メトロ銀座線（上野広小路）">G</span><span class="badge h" title="東京メトロ日比谷線（仲御徒町）">H</span><span class="badge jr" title="JR線（御徒町）">JR</span></div><span class="node"></span><div class="name xlong">上野御徒町</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge m" title="東京メトロ丸ノ内線">M</span></div><span class="node"></span><div class="name xlong">本郷三丁目</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge i" title="都営三田線">I</span><span class="badge m" title="東京メトロ丸ノ内線（後楽園）">M</span><span class="badge n" title="東京メトロ南北線（後楽園）">N</span></div><span class="node"></span><div class="name">春日</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge t" title="東京メトロ東西線">T</span><span class="badge y" title="東京メトロ有楽町線">Y</span><span class="badge n" title="東京メトロ南北線">N</span><span class="badge jr" title="JR中央・総武線各駅停車">JR</span></div><span class="node"></span><div class="name">飯田橋</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">牛込神楽坂</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name xlong">牛込柳町</div></li>
+            <li class="stop"><div class="badges"></div><span class="node"></span><div class="name">若松河田</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge f" title="東京メトロ副都心線">F</span></div><span class="node"></span><div class="name">東新宿</div></li>
+            <li class="stop has-transfer"><div class="badges"><span class="badge m" title="東京メトロ丸ノ内線（新宿）">M</span><span class="badge jr" title="JR線（新宿）">JR</span><span class="badge ko" title="京王線（新宿）">京王</span><span class="badge od" title="小田急線（新宿）">小田急</span><span class="badge seibu" title="西武新宿線（西武新宿）">西武</span></div><span class="node"></span><div class="name long">新宿西口</div></li>
+          </ol>
+        </div>
+      </section>
+      <p class="note">豊島園は、東京都交通局の大江戸線ページおよび豊島園駅ページで乗り換え案内が確認できないため、乗換バッジを付けていません。</p>
+    </section>
+
+    <section class="sources" aria-labelledby="sources-title">
+      <h2 id="sources-title">確認に使った公式情報</h2>
+      <ul>
+        <li><a href="https://www.kotsu.metro.tokyo.jp/subway/shinjuku/">東京都交通局：新宿線</a></li>
+        <li><a href="https://www.kotsu.metro.tokyo.jp/subway/timetable/shinjuku/S01ED.html">東京都交通局：新宿駅時刻表（新宿線・急行）</a></li>
+        <li><a href="https://www.kotsu.metro.tokyo.jp/subway/timetable/shinjuku/S15WD.html">東京都交通局：大島駅時刻表（京王線方面・京王線内種別）</a></li>
+        <li><a href="https://www.kotsu.metro.tokyo.jp/subway/oedo/">東京都交通局：大江戸線</a></li>
+        <li><a href="https://www.kotsu.metro.tokyo.jp/subway/stations/index.html">東京都交通局：各駅情報</a></li>
+        <li><a href="https://www.kotsu.metro.tokyo.jp/subway/stations/toshimaen.html">東京都交通局：豊島園駅</a></li>
+        <li><a href="https://www.tokyometro.jp/station/line_marunouchi/index.html">東京メトロ：丸ノ内線</a></li>
+        <li><a href="https://www.tokyometro.jp/station/line_fukutoshin/index.html">東京メトロ：副都心線</a></li>
+      </ul>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const centerBaseStations = () => {
+        document.querySelectorAll(".rail-scroll").forEach((scroller) => {
+          const base = scroller.querySelector(".stop.base");
+          if (!base) return;
+
+          const targetLeft = base.offsetLeft + (base.offsetWidth / 2) - (scroller.clientWidth / 2);
+          scroller.scrollLeft = Math.max(0, targetLeft);
+        });
+      };
+
+      window.addEventListener("load", centerBaseStations);
+      window.addEventListener("resize", () => {
+        window.requestAnimationFrame(centerBaseStations);
+      });
+    })();
+  </script>
+</body>
+</html>
