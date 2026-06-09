@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>4路線 乗り換え路線図</title>
+  <title>乗り換え路線図</title>
   <style>
     :root {
       color-scheme: light;
@@ -114,6 +114,10 @@
       font-size: 0.93rem;
       font-weight: 800;
       text-decoration: none;
+    }
+
+    .route-jump-nav {
+      margin: 0 0 14px;
     }
 
     .line-dot {
@@ -615,48 +619,9 @@
 <body>
   <main class="page">
     <header class="page-header">
-      <h1>4路線 乗り換え路線図</h1>
+      <h1>乗り換え路線図</h1>
       <p class="lead">ブラウザで見る前提の横スクロール路線図です。駅番号と所要時間は省き、乗換路線は日本語の色付きバッジ、急行停車駅は駅ノード内の表示で確認できます。</p>
-      <nav class="nav" aria-label="路線ナビゲーション">
-        <a href="#shinjuku" style="--line: var(--s);"><span class="line-dot"></span>都営新宿線</a>
-        <a href="#marunouchi" style="--line: var(--m);"><span class="line-dot"></span>丸ノ内線</a>
-        <a href="#fukutoshin" style="--line: var(--f);"><span class="line-dot"></span>副都心線</a>
-        <a href="#oedo" style="--line: var(--e);"><span class="line-dot"></span>大江戸線</a>
-      </nav>
     </header>
-
-    <section class="legend" aria-labelledby="legend-title">
-      <h2 class="legend-title" id="legend-title">乗換バッジ凡例</h2>
-      <ul class="legend-grid">
-        <li><span class="service-symbol express-symbol">急</span>急行停車</li>
-        <li><span class="service-symbol commuter-symbol">通急</span>通勤急行のみ停車</li>
-        <li><span class="badge jr">中央総武</span>JR各線は路線名で表示</li>
-        <li><span class="badge m">M</span>丸ノ内線</li>
-        <li><span class="badge f">F</span>副都心線</li>
-        <li><span class="badge s">S</span>都営新宿線</li>
-        <li><span class="badge e">E</span>大江戸線</li>
-        <li><span class="badge y">Y</span>有楽町線</li>
-        <li><span class="badge n">N</span>南北線</li>
-        <li><span class="badge t">T</span>東西線</li>
-        <li><span class="badge z">Z</span>半蔵門線</li>
-        <li><span class="badge i">I</span>三田線</li>
-        <li><span class="badge c">C</span>千代田線</li>
-        <li><span class="badge h">H</span>日比谷線</li>
-        <li><span class="badge g">G</span>銀座線</li>
-        <li><span class="badge a">A</span>浅草線</li>
-        <li><span class="badge ko">京王線</span>京王線 / 京王新線</li>
-        <li><span class="badge od">小田急</span>小田急線</li>
-        <li><span class="badge seibu">西武池袋</span>西武各線</li>
-        <li><span class="badge tobu">東武東上</span>東武東上線</li>
-        <li><span class="badge keisei">京成本線</span>京成本線</li>
-        <li><span class="badge tx">TX</span>つくばエクスプレス</li>
-        <li><span class="badge tokyu">東横</span>東急田園都市線 / 東急東横線</li>
-        <li><span class="badge ino">井の頭</span>京王井の頭線</li>
-        <li><span class="badge tram">都電</span>東京さくらトラム</li>
-        <li><span class="badge yuri">ゆり</span>ゆりかもめ</li>
-        <li><span class="badge mono">モノ</span>東京モノレール</li>
-      </ul>
-    </section>
 
     <section class="route-section shinjuku" id="shinjuku" aria-labelledby="shinjuku-title">
       <header class="route-head">
@@ -853,11 +818,49 @@
       <p class="note">豊島園はジョルダンPDFで西武豊島線接続を確認したため、乗換バッジを付けています。</p>
     </section>
 
+    <nav class="nav route-jump-nav" aria-label="路線ナビゲーション">
+      <a href="#shinjuku" style="--line: var(--s);"><span class="line-dot"></span>都営新宿線</a>
+      <a href="#marunouchi" style="--line: var(--m);"><span class="line-dot"></span>丸ノ内線</a>
+      <a href="#fukutoshin" style="--line: var(--f);"><span class="line-dot"></span>副都心線</a>
+      <a href="#oedo" style="--line: var(--e);"><span class="line-dot"></span>大江戸線</a>
+    </nav>
+
+    <section class="legend" aria-labelledby="legend-title">
+      <h2 class="legend-title" id="legend-title">乗換バッジ凡例</h2>
+      <ul class="legend-grid">
+        <li><span class="service-symbol express-symbol">急</span>急行停車</li>
+        <li><span class="service-symbol commuter-symbol">通急</span>通勤急行のみ停車</li>
+        <li><span class="badge jr">中央総武</span>JR各線は路線名で表示</li>
+        <li><span class="badge m">M</span>丸ノ内線</li>
+        <li><span class="badge f">F</span>副都心線</li>
+        <li><span class="badge s">S</span>都営新宿線</li>
+        <li><span class="badge e">E</span>大江戸線</li>
+        <li><span class="badge y">Y</span>有楽町線</li>
+        <li><span class="badge n">N</span>南北線</li>
+        <li><span class="badge t">T</span>東西線</li>
+        <li><span class="badge z">Z</span>半蔵門線</li>
+        <li><span class="badge i">I</span>三田線</li>
+        <li><span class="badge c">C</span>千代田線</li>
+        <li><span class="badge h">H</span>日比谷線</li>
+        <li><span class="badge g">G</span>銀座線</li>
+        <li><span class="badge a">A</span>浅草線</li>
+        <li><span class="badge ko">京王線</span>京王線 / 京王新線</li>
+        <li><span class="badge od">小田急</span>小田急線</li>
+        <li><span class="badge seibu">西武池袋</span>西武各線</li>
+        <li><span class="badge tobu">東武東上</span>東武東上線</li>
+        <li><span class="badge keisei">京成本線</span>京成本線</li>
+        <li><span class="badge tx">TX</span>つくばエクスプレス</li>
+        <li><span class="badge tokyu">東横</span>東急田園都市線 / 東急東横線</li>
+        <li><span class="badge ino">井の頭</span>京王井の頭線</li>
+        <li><span class="badge tram">都電</span>東京さくらトラム</li>
+        <li><span class="badge yuri">ゆり</span>ゆりかもめ</li>
+        <li><span class="badge mono">モノ</span>東京モノレール</li>
+      </ul>
+    </section>
+
     <section class="sources" aria-labelledby="sources-title">
       <h2 id="sources-title">確認に使った情報</h2>
       <ul>
-        <li>PDF照合：ジョルダン「都営新宿線 / 東京メトロ丸ノ内線 / 東京メトロ副都心線 / 都営大江戸線の路線図・地図」</li>
-        <li>PDF照合：NAVITIME「都営新宿線 / 東京メトロ丸ノ内線 / 東京メトロ副都心線 / 都営大江戸線（環状部）の路線図・停車駅」</li>
         <li><a href="https://www.kotsu.metro.tokyo.jp/subway/shinjuku/">東京都交通局：新宿線</a></li>
         <li><a href="https://www.kotsu.metro.tokyo.jp/subway/timetable/shinjuku/S01ED.html">東京都交通局：新宿駅時刻表（新宿線・急行）</a></li>
         <li><a href="https://www.kotsu.metro.tokyo.jp/subway/timetable/shinjuku/S15WD.html">東京都交通局：大島駅時刻表（京王線内種別）</a></li>
