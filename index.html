@@ -87,11 +87,13 @@
       letter-spacing: 0;
     }
 
-    .lead {
-      max-width: 980px;
-      margin: 0;
-      color: #454545;
-      font-size: 1rem;
+    summary {
+      cursor: pointer;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
     }
 
     .nav {
@@ -136,10 +138,39 @@
     }
 
     .legend-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       margin: 0 0 10px;
       color: #333;
       font-size: 0.98rem;
       font-weight: 900;
+    }
+
+    .legend-title::after,
+    .sources-title::after {
+      content: "+";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: #fff;
+      color: #222;
+      font-size: 1.2rem;
+      line-height: 1;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+    }
+
+    .legend[open] .legend-title::after,
+    .sources[open] .sources-title::after {
+      content: "-";
+    }
+
+    .legend:not([open]) .legend-title {
+      margin-bottom: 0;
     }
 
     .legend-grid {
@@ -202,6 +233,30 @@
       border-bottom: 1px solid var(--border);
     }
 
+    .route-section:not([open]) .route-head {
+      border-bottom: 0;
+    }
+
+    .route-head::after {
+      content: "+";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: #fff;
+      color: #222;
+      font-size: 1.4rem;
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+    }
+
+    .route-section[open] > .route-head::after {
+      content: "-";
+    }
+
     .route-title {
       margin: 0;
       font-size: clamp(1.35rem, 2vw, 2rem);
@@ -262,6 +317,10 @@
       color: #555;
       font-size: 0.86rem;
       font-weight: 800;
+    }
+
+    .route-section:not([open]) .scroll-hint {
+      display: none;
     }
 
     .subroute {
@@ -556,9 +615,18 @@
       border-top: 3px solid #222;
     }
 
-    .sources h2 {
+    .sources-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       margin: 0 0 10px;
       font-size: 1.15rem;
+      font-weight: 900;
+    }
+
+    .sources:not([open]) .sources-title {
+      margin-bottom: 0;
     }
 
     .sources ul {
@@ -578,7 +646,7 @@
       }
 
       .route-head {
-        display: block;
+        align-items: flex-start;
         padding: 15px 14px 12px;
       }
 
@@ -620,18 +688,17 @@
   <main class="page">
     <header class="page-header">
       <h1>乗り換え路線図</h1>
-      <p class="lead">ブラウザで見る前提の横スクロール路線図です。駅番号と所要時間は省き、乗換路線は日本語の色付きバッジ、急行停車駅は駅ノード内の表示で確認できます。</p>
     </header>
 
-    <section class="route-section shinjuku" id="shinjuku" aria-labelledby="shinjuku-title">
-      <header class="route-head">
+    <details class="route-section shinjuku" id="shinjuku" aria-labelledby="shinjuku-title">
+      <summary class="route-head">
         <div>
           <h2 class="route-title" id="shinjuku-title">都営新宿線</h2>
           <p class="route-meta">基準駅：曙橋 / 急行停車駅を赤い「急」で表示 / 新宿から京王新線直通あり</p>
           <div class="route-tags"><span class="route-chip express">急行あり</span><span class="route-chip through">京王新線直通</span></div>
         </div>
         <div class="scroll-hint">横にスクロール</div>
-      </header>
+      </summary>
       <div class="rail-scroll" aria-label="都営新宿線の路線図">
         <ol class="rail direct-mixed" style="--count: 24; --through-end: 13.1%;">
           <li class="stop"><div class="badges"><span class="badge ko" title="京王新線">京王新線</span></div><span class="node"></span><div class="name">笹塚</div></li>
@@ -661,17 +728,17 @@
         </ol>
       </div>
       <p class="note">急行停車駅：新宿・市ヶ谷・神保町・馬喰横山・森下・住吉・大島・船堀・本八幡。新宿三丁目・九段下など、赤い「急」がない駅には停まりません。新宿から京王新線（初台・幡ヶ谷・笹塚）へ直通する列車があります。</p>
-    </section>
+    </details>
 
-    <section class="route-section marunouchi" id="marunouchi" aria-labelledby="marunouchi-title">
-      <header class="route-head">
+    <details class="route-section marunouchi" id="marunouchi" aria-labelledby="marunouchi-title">
+      <summary class="route-head">
         <div>
           <h2 class="route-title" id="marunouchi-title">東京メトロ丸ノ内線</h2>
           <p class="route-meta">基準駅：四谷三丁目 / 急行なし / 方南町支線は中野坂上で分岐</p>
           <div class="route-tags"><span class="route-chip local">急行なし</span><span class="route-chip local">方南町支線</span></div>
         </div>
         <div class="scroll-hint">横にスクロール</div>
-      </header>
+      </summary>
 
       <section class="subroute" aria-labelledby="marunouchi-main">
         <h3 class="subroute-title" id="marunouchi-main">本線：荻窪方面 → 池袋方面</h3>
@@ -717,17 +784,17 @@
         </div>
         <p class="note">中野坂上は本線側に表示しています。</p>
       </section>
-    </section>
+    </details>
 
-    <section class="route-section fukutoshin" id="fukutoshin" aria-labelledby="fukutoshin-title">
-      <header class="route-head">
+    <details class="route-section fukutoshin" id="fukutoshin" aria-labelledby="fukutoshin-title">
+      <summary class="route-head">
         <div>
           <h2 class="route-title" id="fukutoshin-title">東京メトロ副都心線</h2>
           <p class="route-meta">基準駅：新宿三丁目 / 急行停車駅を赤い「急」、通勤急行のみ停車をオレンジの「通急」で表示</p>
           <div class="route-tags"><span class="route-chip express">急行あり</span><span class="route-chip commuter">通勤急行あり</span></div>
         </div>
         <div class="scroll-hint">横にスクロール</div>
-      </header>
+      </summary>
       <div class="rail-scroll" aria-label="副都心線の路線図">
         <ol class="rail" style="--count: 16;">
           <li class="stop has-transfer express-stop commuter-stop"><div class="badges"><span class="badge y" title="東京メトロ有楽町線">Y</span><span class="badge tobu" title="東武東上線">東武東上</span></div><span class="node"></span><div class="name">和光市</div></li>
@@ -749,17 +816,17 @@
         </ol>
       </div>
       <p class="note">副都心線の急行停車駅：和光市・小竹向原・池袋・新宿三丁目・明治神宮前〈原宿〉・渋谷。通勤急行は和光市・地下鉄成増・地下鉄赤塚・平和台・氷川台・小竹向原・池袋・新宿三丁目・渋谷に停まります。</p>
-    </section>
+    </details>
 
-    <section class="route-section oedo" id="oedo" aria-labelledby="oedo-title">
-      <header class="route-head">
+    <details class="route-section oedo" id="oedo" aria-labelledby="oedo-title">
+      <summary class="route-head">
         <div>
           <h2 class="route-title" id="oedo-title">都営大江戸線</h2>
           <p class="route-meta">基準駅：新宿 / 急行なし / 光が丘方面と環状部</p>
           <div class="route-tags"><span class="route-chip local">急行なし</span></div>
         </div>
         <div class="scroll-hint">横にスクロール</div>
-      </header>
+      </summary>
 
       <section class="subroute" aria-labelledby="oedo-hikarigaoka">
         <h3 class="subroute-title" id="oedo-hikarigaoka">光が丘方面</h3>
@@ -816,7 +883,7 @@
         </div>
       </section>
       <p class="note">豊島園はジョルダンPDFで西武豊島線接続を確認したため、乗換バッジを付けています。</p>
-    </section>
+    </details>
 
     <nav class="nav route-jump-nav" aria-label="路線ナビゲーション">
       <a href="#shinjuku" style="--line: var(--s);"><span class="line-dot"></span>都営新宿線</a>
@@ -825,8 +892,8 @@
       <a href="#oedo" style="--line: var(--e);"><span class="line-dot"></span>大江戸線</a>
     </nav>
 
-    <section class="legend" aria-labelledby="legend-title">
-      <h2 class="legend-title" id="legend-title">乗換バッジ凡例</h2>
+    <details class="legend" aria-labelledby="legend-title">
+      <summary class="legend-title" id="legend-title">乗換バッジ凡例</summary>
       <ul class="legend-grid">
         <li><span class="service-symbol express-symbol">急</span>急行停車</li>
         <li><span class="service-symbol commuter-symbol">通急</span>通勤急行のみ停車</li>
@@ -856,10 +923,10 @@
         <li><span class="badge yuri">ゆり</span>ゆりかもめ</li>
         <li><span class="badge mono">モノ</span>東京モノレール</li>
       </ul>
-    </section>
+    </details>
 
-    <section class="sources" aria-labelledby="sources-title">
-      <h2 id="sources-title">確認に使った情報</h2>
+    <details class="sources" aria-labelledby="sources-title">
+      <summary class="sources-title" id="sources-title">確認に使った情報</summary>
       <ul>
         <li><a href="https://www.kotsu.metro.tokyo.jp/subway/shinjuku/">東京都交通局：新宿線</a></li>
         <li><a href="https://www.kotsu.metro.tokyo.jp/subway/timetable/shinjuku/S01ED.html">東京都交通局：新宿駅時刻表（新宿線・急行）</a></li>
@@ -870,12 +937,12 @@
         <li><a href="https://www.tokyometro.jp/station/line_marunouchi/index.html">東京メトロ：丸ノ内線</a></li>
         <li><a href="https://www.tokyometro.jp/station/line_fukutoshin/index.html">東京メトロ：副都心線</a></li>
       </ul>
-    </section>
+    </details>
   </main>
   <script>
     (() => {
-      const centerBaseStations = () => {
-        document.querySelectorAll(".rail-scroll").forEach((scroller) => {
+      const centerBaseStations = (scope = document) => {
+        scope.querySelectorAll(".rail-scroll").forEach((scroller) => {
           const base = scroller.querySelector(".stop.base");
           if (!base) return;
 
@@ -887,6 +954,22 @@
       window.addEventListener("load", centerBaseStations);
       window.addEventListener("resize", () => {
         window.requestAnimationFrame(centerBaseStations);
+      });
+
+      document.querySelectorAll(".route-section").forEach((section) => {
+        section.addEventListener("toggle", () => {
+          if (!section.open) return;
+          window.requestAnimationFrame(() => centerBaseStations(section));
+        });
+      });
+
+      document.querySelectorAll(".route-jump-nav a").forEach((link) => {
+        link.addEventListener("click", () => {
+          const target = document.querySelector(link.getAttribute("href"));
+          if (!target || !target.matches(".route-section")) return;
+          target.open = true;
+          window.requestAnimationFrame(() => centerBaseStations(target));
+        });
       });
     })();
   </script>
